@@ -1,8 +1,14 @@
-export const environments = [
+export const environments = [	
 	{
 		id: '',
 		name: 'None',
 		path: null,
+	},
+	{
+		id:'glazed-patio',
+		name: 'Glazed Patio',
+		path: 'glazed.exr',
+		format: '.exr'
 	},
 	{
 		id: 'neutral', // THREE.RoomEnvironment
@@ -20,5 +26,5 @@ export const environments = [
 		name: 'Footprint Court (HDR Labs)',
 		path: 'https://storage.googleapis.com/donmccurdy-static/footprint_court_2k.exr',
 		format: '.exr',
-	},
+	}
 ];

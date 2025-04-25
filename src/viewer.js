@@ -412,6 +412,43 @@ export class Viewer {
 		this.getCubeMapTexture(environment).then(({ envMap }) => {
 			this.scene.environment = envMap;
 			this.scene.background = this.state.background ? envMap : this.backgroundColor;
+
+			// Create a PMREM-processed version of the envMap (for correct brightness/lighting)
+			const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+			const pmremEnvMap = pmremGenerator.fromCubemap(envMap).texture;
+
+			this.scene.environment = pmremEnvMap;
+
+			// Apply brightness using environment intensity (on the material level)
+			this.scene.traverse((child) => {
+				if (child.isMesh && child.material) {
+					child.material.envMapIntensity = 2.7; // Brightness
+					child.material.needsUpdate = true;
+				}
+			});
+
+			// Update orientation (rotate envMap using a cubeCamera + scene background or dummy mesh)
+			const rotationInRadians = THREE.MathUtils.degToRad(79.823);
+			const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationInRadians);
+			envMap.mapping = THREE.EquirectangularReflectionMapping;
+			envMap.matrixAutoUpdate = false;
+			envMap.matrix = rotationMatrix;
+
+			// Set up lighting with intensity and shadow settings
+			if (!this.directionalLight) {
+				this.directionalLight = new THREE.DirectionalLight(0xffffff, 3.2); // Light intensity
+				this.scene.add(this.directionalLight);
+
+				this.directionalLight.castShadow = true;
+				this.directionalLight.shadow.bias = -0.0448;
+
+				this.directionalLight.shadow.mapSize.width = 2048;
+				this.directionalLight.shadow.mapSize.height = 2048;
+				this.directionalLight.position.set(10, 10, 10); // adjust as needed
+			} else {
+				this.directionalLight.intensity = 3.2;
+				this.directionalLight.shadow.bias = -0.0448;
+			}
 		});
 	}
 
