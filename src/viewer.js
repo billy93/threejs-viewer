@@ -20,7 +20,10 @@ import {
 	WebGLRenderer,
 	LinearToneMapping,
 	ACESFilmicToneMapping,
+	ArrowHelper
 } from 'three';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+
 import Stats from 'three/addons/libs/stats.module.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
@@ -79,7 +82,7 @@ export class Viewer {
 			// Lights
 			punctualLights: true,
 			exposure: 0.0,
-			toneMapping: LinearToneMapping,
+			toneMapping: ACESFilmicToneMapping,
 			ambientIntensity: 0.3,
 			ambientColor: '#FFFFFF',
 			directIntensity: 0.8 * Math.PI, // TODO(#116)
@@ -299,14 +302,19 @@ export class Viewer {
 
 		this.setClips(clips);
 
-		this.updateLights();
+		//this.updateLights();
+		// this.renderer.outputEncoding    = sRGBEncoding;
+		// this.renderer.physicallyCorrectLights = true;
+		// this.renderer.toneMapping = Number(this.state.toneMapping);
+		// this.renderer.toneMappingExposure = Math.pow(2, this.state.exposure);
+		this.addLight1();
 		this.updateGUI();
-		this.updateEnvironment();
+		// this.updateEnvironment();
 		this.updateDisplay();
 
 		window.VIEWER.scene = this.content;
 
-		this.printGraph(this.content);
+		// this.printGraph(this.content);
 	}
 
 	printGraph(node) {
@@ -397,6 +405,40 @@ export class Viewer {
 		this.defaultCamera.add(light2);
 
 		this.lights.push(light1, light2);
+	}
+
+	addLight1() {
+		// Directional light utama dari arah depan-kiri-atas
+		// const mainLight = new DirectionalLight('#ffffff', 5);
+		// mainLight.position.set(-3, 4, 3); // kiri atas depan
+		// mainLight.target.position.set(0, 0, 0);
+		// this.scene.add(mainLight);
+		// this.scene.add(mainLight.target);
+		// this.lights.push(mainLight);
+		
+		// Orange Light (kiri atas belakang)
+		const lightLeft = new DirectionalLight("#fff0dc", 6); // Orange
+		lightLeft.position.set(-3, 3, -2.5);
+		lightLeft.target.position.set(0, 0, 0);
+		this.scene.add(lightLeft);
+		this.scene.add(lightLeft.target);
+		this.lights.push(lightLeft);
+	
+		// Blue Light (kanan atas belakang)
+		const lightRight = new DirectionalLight("#b9dfff", 3); // Blue
+		lightRight.position.set(5, 2, -4);
+		lightRight.target.position.set(0, 0, 0);
+		this.scene.add(lightRight);
+		this.scene.add(lightRight.target);
+		this.lights.push(lightRight);
+	
+		// Purple Light (atas lurus ke bawah)
+		const lightTop = new DirectionalLight("#e6e8fb", 5.5); // Soft purple
+		lightTop.position.set(0, 5, 1);
+		lightTop.target.position.set(0, 0, 0);
+		this.scene.add(lightTop);
+		this.scene.add(lightTop.target);
+		this.lights.push(lightTop);
 	}
 
 	removeLights() {
